@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
-import { motion } from 'framer-motion'
-import { Upload, TrendingUp, TrendingDown, DollarSign, PieChart, ArrowUpRight } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Upload, TrendingUp, TrendingDown, DollarSign, PieChart, ArrowUpRight, Plus, X } from 'lucide-react'
 import { GSTLineChart, ExpensesBarChart } from '../components/ChartCard.jsx'
 import { gstTrendData, expensesData } from '../data/mockData.js'
 import { useToast } from '../contexts/ToastContext.jsx'
@@ -25,6 +25,7 @@ export default function FinancePage() {
   const showToast = useToast()
   const stmtRef = useRef()
   const [txList, setTxList] = useState(transactions)
+  const [showDataModal, setShowDataModal] = useState(false)
 
   const handleDataSubmit = (data, format) => {
     try {
@@ -50,9 +51,24 @@ export default function FinancePage() {
 
   return (
     <div className="space-y-6">
-      <motion.div variants={fadeUp} initial="hidden" animate="visible">
-        <h2 className="text-base font-semibold" style={{ color: 'var(--tc-text-1)' }}>Financial Hub</h2>
-        <p className="text-xs mt-0.5" style={{ color: 'var(--tc-text-3)' }}>Track revenue, expenses, and P&amp;L in real time</p>
+      {/* Header with Add Data Icon */}
+      <motion.div variants={fadeUp} initial="hidden" animate="visible" className="flex items-center justify-between">
+        <div>
+          <h2 className="text-base font-semibold" style={{ color: 'var(--tc-text-1)' }}>Financial Hub</h2>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--tc-text-3)' }}>Track revenue, expenses, and P&amp;L in real time</p>
+        </div>
+        <button
+          onClick={() => setShowDataModal(true)}
+          className="p-2.5 rounded-xl transition-all hover:scale-110"
+          style={{
+            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.1))',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+            color: 'rgb(139, 92, 246)'
+          }}
+          title="Add Financial Data"
+        >
+          <Plus className="w-5 h-5" strokeWidth={2.5} />
+        </button>
       </motion.div>
 
       {/* Summary KPIs */}
@@ -88,8 +104,63 @@ export default function FinancePage() {
         <ExpensesBarChart data={expensesData} />
       </div>
 
-      {/* Multi-Format Data Input */}
-      <MultiFormatDataInput onDataSubmit={handleDataSubmit} dataType="transactions" />
+      {/* Data Input Modal */}
+      <AnimatePresence>
+        {showDataModal && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowDataModal(false)}
+              className="fixed inset-0 bg-black/50 z-40"
+              style={{ backdropFilter: 'blur(4px)' }}
+            />
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-11/12 max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl"
+              style={{
+                background: 'var(--tc-card-bg)',
+                border: '1px solid var(--tc-card-border)',
+                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+              }}
+            >
+              {/* Modal Header */}
+              <div
+                className="flex items-center justify-between px-6 py-4 sticky top-0 z-10"
+                style={{ borderBottom: '1px solid var(--tc-divider)', background: 'var(--tc-card-bg)' }}
+              >
+                <h3 className="text-lg font-semibold" style={{ color: 'var(--tc-text-1)' }}>
+                  Add Financial Data
+                </h3>
+                <button
+                  onClick={() => setShowDataModal(false)}
+                  className="p-1 hover:bg-gray-700 rounded-lg transition-colors"
+                  style={{ color: 'var(--tc-text-2)' }}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="px-6 py-4">
+                <MultiFormatDataInput
+                  onDataSubmit={(data, format) => {
+                    handleDataSubmit(data, format)
+                    setShowDataModal(false)
+                  }}
+                  dataType="transactions"
+                />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Recent Transactions */}
       <motion.div variants={fadeUp} custom={5} initial="hidden" animate="visible"
