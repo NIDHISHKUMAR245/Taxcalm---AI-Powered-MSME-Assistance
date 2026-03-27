@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
-import { motion } from 'framer-motion'
-import { Upload, TrendingUp, TrendingDown, DollarSign, PieChart, ArrowUpRight } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Upload, TrendingUp, TrendingDown, DollarSign, PieChart, ArrowUpRight, Plus, X } from 'lucide-react'
 import { GSTLineChart, ExpensesBarChart } from '../components/ChartCard.jsx'
 import { gstTrendData, expensesData } from '../data/mockData.js'
 import { useToast } from '../contexts/ToastContext.jsx'
@@ -25,6 +25,7 @@ export default function FinancePage() {
   const showToast = useToast()
   const stmtRef = useRef()
   const [txList, setTxList] = useState(transactions)
+  const [showDataModal, setShowDataModal] = useState(false)
 
   const handleDataSubmit = (data, format) => {
     try {
@@ -50,9 +51,24 @@ export default function FinancePage() {
 
   return (
     <div className="space-y-6">
-      <motion.div variants={fadeUp} initial="hidden" animate="visible">
-        <h2 className="text-base font-semibold" style={{ color: 'var(--tc-text-1)' }}>Financial Hub</h2>
-        <p className="text-xs mt-0.5" style={{ color: 'var(--tc-text-3)' }}>Track revenue, expenses, and P&amp;L in real time</p>
+      {/* Header with Add Data Icon */}
+      <motion.div variants={fadeUp} initial="hidden" animate="visible" className="flex items-center justify-between">
+        <div>
+          <h2 className="text-base font-semibold" style={{ color: 'var(--tc-text-1)' }}>Financial Hub</h2>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--tc-text-3)' }}>Track revenue, expenses, and P&amp;L in real time</p>
+        </div>
+        <button
+          onClick={() => setShowDataModal(true)}
+          className="p-2.5 rounded-xl transition-all hover:scale-110"
+          style={{
+            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.1))',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+            color: 'rgb(139, 92, 246)'
+          }}
+          title="Add Financial Data"
+        >
+          <Plus className="w-5 h-5" strokeWidth={2.5} />
+        </button>
       </motion.div>
 
       {/* Summary KPIs */}
